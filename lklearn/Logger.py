@@ -2,7 +2,7 @@ import os
 import datetime
 import pandas as pd
 
-class ModelLogger(object):
+class Logger(object):
 # Class for tracking machine learning model 
     
     # json_path: path to file that will store the model records

@@ -19,7 +19,7 @@ model_info = {'date_created': datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%
               'present_dir': os.getcwd(),
               'reason':'To test ResNet50',
               'architecture': 'ResNet50',
-              'input_shape': (224,224,3),
+              'input_shape': [224,224,3],
               'input_info': {'nfft': 2048, 'nmels': 128, 'nperseg': 512, 'noverlap': 384},
               'output_info': {0:'chainsaw', 1:'environment'},
               'training_info': {'lr':'0.001', 'optimizer':'adam', 'batch_size':16},
@@ -35,7 +35,7 @@ logger.db # contains the log file info
 # model_info = {...}
 
 # Update the log file
-logger = Logger(json_path, model_info)
-logger.update_json() # adds the new model/experiment to the log file
+logger.load_model(model_info)
+logger.update_json(append=True) # adds the new model/experiment to the log file
 
 ```

@@ -77,6 +77,8 @@ class Logger(object):
             self.model = pd.DataFrame(self.db.loc[index]).transpose()
         elif isinstance(index, dict):
             self.model = dict_to_df(index)
+            if not hasattr(index, 'index'):
+                self.model.index = [np.nan]
     
     def delete_model(self, index=None):
         if index is None:

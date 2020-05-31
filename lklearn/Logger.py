@@ -1,9 +1,10 @@
 import os
 import datetime
 import pandas as pd
+import numpy as np
 
 class Logger(object):
-# Class for tracking machine learning model 
+# Class for tracking machine learning experiments
     
     # json_path: path to file that will store the model records
     
@@ -26,6 +27,8 @@ class Logger(object):
     def __init__(self, json_path, model_info):
         self.json_path = json_path
         self.model = dict_to_df(model_info)
+        if not hasattr(model_info, 'index'):
+            self.model.index = [np.nan]
         self.db = 'No json file loaded'
         
         # Load the db if it exists
@@ -50,29 +53,41 @@ class Logger(object):
             self.db = pd.read_json(self.json_path)
             return 
         else:
-            raise SystemExit('Error: no json has been created at the given json_path.')
+            raise SystemExit('Error: no json has been created at the given json_path. Use .create_json().')
         
     def store_json(self):
         return self.db.to_json(self.json_path)
         
-    def update_json(self):
+    def update_json(self, append=False):
         if type(self.db)==str:
             print('Creating json')
             self.create_json()
             self.db = pd.read_json(self.json_path)
+        elif (not np.isnan(self.model.index)) & (not append):
+            self.db.update(self.model)
+            self.store_json()
         else:
             self.model.index = [max(self.db.index)+1]
             self.db = self.db.append(self.model, sort=False)
             self.store_json()
         return
     
-    def delete_model(self):
-        if model.index:
-            self.db.drop(self.model.index, inplace=True)
-            self.store_json()
+    def load_model(self, index):
+        if isinstance(index, int):
+            self.model = pd.DataFrame(self.db.loc[index]).transpose()
+        elif isinstance(index, dict):
+            self.model = dict_to_df(index)
+    
+    def delete_model(self, index=None):
+        if index is None:
+            if self.model.index is not None:
+                self.db.drop(self.model.index, inplace=True)
+                self.store_json()
+            else:
+                raise SystemExit('Error: model hasn''t been written to json yet.')
         else:
-            raise SystemExit('Error: model hasn''t been written to json yet.')
-            
+            self.db.drop(index, inplace=True)
+            self.store_json()
     
 def dict_to_df(dct):
     return pd.DataFrame.from_dict(dct, orient='index').transpose()
